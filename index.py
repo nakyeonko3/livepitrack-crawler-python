@@ -1,11 +1,9 @@
 import requests
-from bs4 import BeautifulSoup
 import concurrent.futures
 import pandas as pd
 import time
 import random
-import lxml
-from lxml import html, etree
+from lxml import html
 import re
 
 
@@ -42,8 +40,6 @@ def fetch_page(page_index, base_params):
         print(f"페이지 {page_index} 요청 실패: {str(e)}")
         return None
 
-
-   
 
 def main():
     # 기본 파라미터 설정 (사용자 입력 기반)
@@ -121,7 +117,7 @@ def main():
     # 저장 확인용 출력
     print("CSV 파일로 저장 완료: livestock_disease_data.csv")
     print(df)
-    
+
 if __name__ == "__main__":
     main()
 

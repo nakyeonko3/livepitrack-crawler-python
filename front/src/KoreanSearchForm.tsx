@@ -1,6 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { getOptions } from "./api";
-import { getOptions } from "./api";
+import { useState, useEffect } from "react";
+import { generateDiseaseDocsFile, getOptions } from "./api";
+
+interface convertFormat {
+  dateType: string;
+  startDate: string;
+  endDate: string;
+  region: string;
+  disease: string;
+  legalGrade: string;
+  livestock: string;
+}
+
+const convertFormat = (input: convertFormat) => {
+  return {
+    turmGubun: input.dateType,
+    occrFromDt: input.startDate,
+    occrToDt: input.endDate,
+    ctprvn: input.region,
+    dissCl: input.disease,
+    lstkspCl: input.livestock,
+    legalIctsdGradSe: input.legalGrade,
+  };
+};
 
 const KoreanSearchForm = () => {
   // Form state
@@ -11,6 +32,7 @@ const KoreanSearchForm = () => {
   const [disease, setDisease] = useState("");
   const [legalGrade, setLegalGrade] = useState("");
   const [livestock, setLivestock] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Options state
   const [options, setOptions] = useState({
@@ -30,7 +52,7 @@ const KoreanSearchForm = () => {
   }, []);
 
   // Handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Prepare data to send
     const formData = {
       dateType,
@@ -44,28 +66,13 @@ const KoreanSearchForm = () => {
 
     console.log("Sending request with data:", formData);
 
-    // API endpoint
-    const apiUrl = "http://127.0.0.1:5000/api/search";
-
-    // Send the request
-    // fetch(apiUrl, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(formData),
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log("Success:", data);
-    //     // Handle the response data here
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error:", error);
-    //   });
+    const params = convertFormat(formData);
+    setLoading(true);
+    const response = await generateDiseaseDocsFile(params);
+    setLoading(false);
+    console.log("Response:", response);
   };
 
-  // Helper function to render select options from object
   const renderOptions = (
     optionsObj: Record<string, string>,
     firstKey: string
@@ -190,11 +197,14 @@ const KoreanSearchForm = () => {
           {/* Search button */}
           <button
             onClick={handleSubmit}
-            className="bg-blue-500 text-white px-4 py-1 rounded ml-auto hover:bg-blue-600"
+            className="bg-blue-500 text-white px-4 py-1 rounded ml-auto hover:bg-blue-600 disabled:bg-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed"
+            disabled={loading}
           >
-            조회
+            다운로드
           </button>
         </div>
+
+        {loading && <Loading />}
 
         {/* Color indicators */}
         <div className="flex items-center ml-auto mt-2">
@@ -211,6 +221,19 @@ const KoreanSearchForm = () => {
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+const Loading = () => {
+  return (
+    <div
+      className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50"
+      style={{
+        backgroundColor: `rgba(255, 255, 255, 0.2)`,
+        backdropFilter: "blur(2px)",
+      }}
+    >
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-700"></div>
     </div>
   );
 };

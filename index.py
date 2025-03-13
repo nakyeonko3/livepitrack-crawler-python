@@ -9,6 +9,9 @@ import re
 import openpyxl
 import os
 
+# from get_cs_signature import get_cs_signature
+# CSSIGNATURE = get_cs_signature()
+CSSIGNATURE = "f8kcFfnwghfIToSYbM6uxQ=="
 
 # custom_params 설정
 # 기본 파라미터 설정 (사용자 입력 기반)
@@ -24,7 +27,7 @@ custom_params = {
 
 PAGE_INDEX_XPATH = '//td[contains(text(), "전체 : ")][1]'
 XPATH_TABLE_DATA = "/html/body/div[1]/div[2]/div[3]/form[2]/table[4]/tr[2]/td/table"
-CSSIGNATURE = 'f8kcFfnwghfIToSYbM6uxQ%3D%3D'
+
 SITE_URL = "https://home.kahis.go.kr/home/lkntscrinfo/selectLkntsOccrrncList.do"
 REFERER_URL = "https://home.kahis.go.kr/home/"
 
@@ -143,5 +146,4 @@ def fetch_and_save_livestock_disease_data(base_params):
 
 
 if __name__ == "__main__":
-
     fetch_and_save_livestock_disease_data(base_params=custom_params)

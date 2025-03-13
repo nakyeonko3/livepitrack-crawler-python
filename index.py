@@ -53,33 +53,13 @@ default_base_params = {
 }
 
 
-
-# def split_date_column(df):
-      # df = split_date_column(df)
-#     # 발생일자와 진단일을 분리
-#     # 발생일자 추출 - '(' 앞부분
-#     df['발생일자'] = df['Date'].apply(lambda x: x.split('(')[0].strip())
-
-#     # 진단일 추출 - 괄호 안의 내용
-#     df['진단일'] = df['Date'].apply(lambda x: x.split('(')[1].replace(')', '').strip() if '(' in x else '')
-
-#     # 기존 'Date' 열 삭제
-#     df = df.drop(columns=['Date'])
-
-#     종식일_값 = df['종식일'].copy()
-#     df = df.drop(columns=['종식일'])
-#     df['종식일'] = 종식일_값
-    
-#     return df
-
-
 def fetch_and_save_livestock_disease_data(base_params):
 
     request_params = {
         "csSignature": 'f8kcFfnwghfIToSYbM6uxQ%3D%3D', # 시그니처
         "turmGubun": "01", # 01: 진단일, 02: 발생일
-        "occrFromDt": "2024-03-13", # 발생일자(시작) or 진단일자(시작)
-        "occrToDt": "2025-03-13", # 발생일자(종료) or 진단일자(종료)
+        "occrFromDt": "2024-03-13", # 시작일
+        "occrToDt": "2025-03-13", # 종료일
         "dissCl": "", # 질병명
         "lstkspCl": "", # 축종 
         'ctprvn': '', # 발생지역

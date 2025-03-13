@@ -1,9 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, send_from_directory
 
-from flask_cors import CORS
+from fetch_and_save_livestock_disease import fetch_and_save_livestock_disease_data
+
+import concurrent.futures
+import os
+
+executor = concurrent.futures.ThreadPoolExecutor()
 
 app = Flask(__name__)
-CORS(app)
 app.json.ensure_ascii = False
 
 OPTIONS = {
@@ -67,6 +71,15 @@ OPTIONS = {
     }
 }
 
+@app.route("/")
+def index():
+    return send_from_directory("./front/dist", "index.html")
+
+
+@app.route("/<path:path>")
+def serve_static(path):
+    return send_from_directory("./front/dist", path)
+
 @app.route('/api/options', methods=['GET'])
 def get_options():
     return jsonify(OPTIONS)
@@ -74,10 +87,7 @@ def get_options():
 @app.route('/api/v1/animal-disease-report', methods=['POST'])
 def generate_params():
     data = request.get_json()
-    params = create_params(data)
-    return jsonify(params)
-
-def create_params(data):
+    # params = create_params(data):
     selected_term = data.get('turmGubun', '01') # 선택지
     disease_code = data.get('dissCl', '') # 질병 코드 
     start_date = data.get('occrFromDt') # 시작일
@@ -102,7 +112,25 @@ def create_params(data):
         'legalIctsdGradSe': disease_grade
     }
 
-    return params
+    future = executor.submit(fetch_and_save_livestock_disease_data, base_params=params)
+    concurrent.futures.wait([future])
+
+    directory = './output'
+    if not os.path.isfile(f'{directory}/livestock_disease_data.xlsx'):
+        return jsonify({"error": "File not found"}), 404
+
+    return send_file(
+        f'{directory}/livestock_disease_data.xlsx', 
+        as_attachment=True,
+        download_name='livestock_disease_data.xlsx',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+
+@app.route('/download')
+def download_file():
+    path = "./output/livestock_disease_data.xlsx"  # 다운로드할 파일 경로
+    return send_file(path, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)

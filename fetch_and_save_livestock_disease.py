@@ -7,10 +7,12 @@ import random
 from lxml import html
 import re
 import openpyxl
+import os
 
 
 PAGE_INDEX_XPATH = '//td[contains(text(), "전체 : ")][1]'
 XPATH_TABLE_DATA = "/html/body/div[1]/div[2]/div[3]/form[2]/table[4]/tr[2]/td/table"
+OUTPUT_DIR = './output'
 
 
 def fetch_page(page_index, base_params):
@@ -51,6 +53,9 @@ default_base_params = {
     "occrFromDt": "2025-01-13", 
     "occrToDt": "2025-03-13", 
 }
+
+
+# 어떻게 이 함수를 import 하지?
 
 
 def fetch_and_save_livestock_disease_data(base_params):
@@ -119,12 +124,13 @@ def fetch_and_save_livestock_disease_data(base_params):
     # NaN을 0으로 변경 (원하는 경우)
     df['Number'] = df['Number'].fillna(0).astype(int)
 
-    df.to_csv('livestock_disease_data.csv', index=False, encoding='utf-8-sig')
-    df.to_excel('livestock_disease_data.xlsx', index=False, engine='openpyxl')
+    df.to_csv(f'{OUTPUT_DIR}/livestock_disease_data.csv', index=False, encoding='utf-8-sig')
+    df.to_excel(f'{OUTPUT_DIR}/livestock_disease_data.xlsx', index=False, engine='openpyxl')
 
     # 저장 확인용 출력
     print("CSV 파일로 저장 완료: livestock_disease_data.csv")
     print(df)
+    return "success"
 
 
 

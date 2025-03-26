@@ -55,9 +55,6 @@ default_base_params = {
 }
 
 
-# 어떻게 이 함수를 import 하지?
-
-
 def fetch_and_save_livestock_disease_data(base_params):
 
     request_params = {

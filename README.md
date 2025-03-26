@@ -45,7 +45,7 @@ playwright install
 
 4. 실행
 ```bash
-python index.py
+python fetch_and_save_livestock_disease.py
 ```
 
 5. 실행 결과

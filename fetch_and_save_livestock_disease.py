@@ -9,31 +9,10 @@ import re
 import openpyxl
 import os
 
-# from get_cs_signature import get_cs_signature
-# CSSIGNATURE = get_cs_signature()
-CSSIGNATURE = "f8kcFfnwghfIToSYbM6uxQ=="
-
-# custom_params 설정
-# 기본 파라미터 설정 (사용자 입력 기반)
-custom_params = { 
-    "turmGubun": "02", # 02: 발생일
-    "occrFromDt": "2000-01-13", # 시작일
-    "occrToDt": "2025-03-13", # 종료일
-    "dissCl": "0111", # 질병명: 고병원성 조류인플루엔자
-    "lstkspCl": "", # 축종: 전체
-    'ctprvn': '', # 발생지역: 전체
-    "legalIctsdGradSe": "" ,# 법정전염병: 전체
-}
 
 PAGE_INDEX_XPATH = '//td[contains(text(), "전체 : ")][1]'
 XPATH_TABLE_DATA = "/html/body/div[1]/div[2]/div[3]/form[2]/table[4]/tr[2]/td/table"
-
-SITE_URL = "https://home.kahis.go.kr/home/lkntscrinfo/selectLkntsOccrrncList.do"
-REFERER_URL = "https://home.kahis.go.kr/home/"
-
-# csv와 엑셀 파일을 저장할 폴더 위치
-OUTPUT_DIR = 'output'
-
+OUTPUT_DIR = './output'
 
 
 def fetch_page(page_index, base_params):
@@ -47,7 +26,7 @@ def fetch_page(page_index, base_params):
     # 요청 헤더
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
-        "Referer": REFERER_URL,
+        "Referer": "https://home.kahis.go.kr/home/",
         "User-Agent": "Mozilla/5.0"
     }
     
@@ -56,7 +35,7 @@ def fetch_page(page_index, base_params):
     
     try:
         response = session.post(
-            SITE_URL, 
+            "https://home.kahis.go.kr/home/lkntscrinfo/selectLkntsOccrrncList.do", 
             data=params, 
             headers=headers
         )
@@ -67,14 +46,22 @@ def fetch_page(page_index, base_params):
         return None
 
 
+# 기본 파라미터 설정 (사용자 입력 기반)
+default_base_params = {
+    "csSignature": 'f8kcFfnwghfIToSYbM6uxQ%3D%3D', 
+    "turmGubun": "01", 
+    "occrFromDt": "2025-01-13", 
+    "occrToDt": "2025-03-13", 
+}
+
 
 def fetch_and_save_livestock_disease_data(base_params):
 
     request_params = {
-        "csSignature": CSSIGNATURE, # 시그니처
-        "turmGubun": "02", # 01: 진단일, 02: 발생일
-        "occrFromDt": "2000-01-13", 
-        "occrToDt": "2025-03-13", 
+        "csSignature": 'f8kcFfnwghfIToSYbM6uxQ%3D%3D', # 시그니처
+        "turmGubun": "01", # 01: 진단일, 02: 발생일
+        "occrFromDt": "2024-03-13", # 시작일
+        "occrToDt": "2025-03-13", # 종료일
         "dissCl": "", # 질병명
         "lstkspCl": "", # 축종 
         'ctprvn': '', # 발생지역
@@ -134,16 +121,17 @@ def fetch_and_save_livestock_disease_data(base_params):
     # NaN을 0으로 변경 (원하는 경우)
     df['Number'] = df['Number'].fillna(0).astype(int)
 
-    
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    df.to_csv(os.path.join(OUTPUT_DIR, 'livestock_disease_data.csv'), index=False, encoding='utf-8-sig')
-    df.to_excel(os.path.join(OUTPUT_DIR, 'livestock_disease_data.xlsx'), index=False, engine='openpyxl')
+    df.to_csv(f'{OUTPUT_DIR}/livestock_disease_data.csv', index=False, encoding='utf-8-sig')
+    df.to_excel(f'{OUTPUT_DIR}/livestock_disease_data.xlsx', index=False, engine='openpyxl')
 
-    # ---------------저장 확인용 출력---------
-    print("CSV 파일로 저장 완료: livestock_disease_data.csv, livestock_disease_data.xlsx")
+    # 저장 확인용 출력
+    print("CSV 파일로 저장 완료: livestock_disease_data.csv")
     print(df)
-    # -----------------------
+    return "success"
+
 
 
 if __name__ == "__main__":
-    fetch_and_save_livestock_disease_data(base_params=custom_params)
+    fetch_and_save_livestock_disease_data(base_params=default_base_params)
+
+
